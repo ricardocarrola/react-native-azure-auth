@@ -11,17 +11,26 @@ export default class Agent {
         }
 
         return new Promise((resolve, reject) => {
+            let eventURL
+            const removeListener = () => {
+                //This is done to handle backward compatibility with RN <= 0.64 which doesn't return EmitterSubscription on addEventListener
+                if (eventURL === undefined) {
+                    Linking.removeEventListener('url', urlHandler)
+                } else {
+                    eventURL.remove()
+                }
+            }
             const urlHandler = (event) => {
                 NativeModules.AzureAuth.hide()
-                Linking.removeEventListener('url', urlHandler)
+                removeListener();
                 resolve(event.url)
             }
-            Linking.addEventListener('url', urlHandler)
+            eventURL = Linking.addEventListener('url', urlHandler)
             NativeModules.AzureAuth.showUrl(url, closeOnLoad, (err, redirectURL) => {
-                Linking.removeEventListener('url', urlHandler)
+                removeListener();
                 if (err) {
                     reject(err)
-                } else if(redirectURL) {
+                } else if (redirectURL) {
                     resolve(redirectURL)
                 } else if (closeOnLoad) {
                     resolve()
