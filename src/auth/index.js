@@ -85,8 +85,17 @@ export default class Auth {
    *
    * @memberof Auth
    */
-    logoutUrl() {
-        return this.client.url('logout', {
+    logoutUrl(parameters = {}) {
+        console.log('parameters',parameters);
+ const query = validate({
+            parameters: {
+                id_token_hint: { required: true },
+            },
+            validate: false // not declared params are allowed:
+        }, parameters)
+
+        return this.client.url('logout', 
+         {...query,
             post_logout_redirect_uri: this.redirectUri,
             redirect_uri: this.redirectUri
         })

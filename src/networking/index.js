@@ -84,8 +84,14 @@ export default class Client {
             options.body = serializeParams(body)
             options.headers['Content-Length'] = options.body.length
         }
-
-        let response = await fetch(url, options)
+        console.log('por aqui')
+         var response = undefined;
+        try {
+            response = await fetch(url, options)
+        } catch (error) {
+            console.log('error on post', error);
+        }
+        console.log('passouu depois', response);
         const payload = { status: response.status, ok: response.ok, headers: response.headers }
 
         if (response.headers.get('Content-Type') && response.headers.get('Content-Type').startsWith('image')) {

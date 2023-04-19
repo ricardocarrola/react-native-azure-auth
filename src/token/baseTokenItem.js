@@ -36,11 +36,12 @@ export default class BaseTokenItem {
         this.clientId = clientId
         this.rawIdToken = tokenResponse.idToken
         let decodedIdToken = extractIdToken(tokenResponse.idToken)
+        console.log('decodedIdToken',decodedIdToken)
 
-        this.userId = decodedIdToken.preferred_username
-        this.userName = decodedIdToken.name
-        this.tenantId = decodedIdToken.tid
-        this.idTokenExpireOn = parseInt(decodedIdToken.exp)*1000
+        //this.userId = decodedIdToken.preferred_username
+        //this.userName = decodedIdToken.name
+        //this.tenantId = decodedIdToken.tid
+        //this.idTokenExpireOn = parseInt(decodedIdToken.exp)*1000
     }
 
     static createRefreshTokenKey(clientId, userId) {

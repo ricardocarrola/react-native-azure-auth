@@ -4,6 +4,8 @@ import AuthError from '../auth/authError'
 import Scope from '../token/scope'
 import BaseTokenItem from '../token/baseTokenItem'
 import { validate } from '../utils/validate'
+import { extractIdToken } from '../token//token'
+
 
 /**
  * Helper to perform Auth against Azure AD login page
@@ -98,7 +100,7 @@ export default class WebAuth {
             scope: scope.toString(),
             code_verifier: verifier
         })
-
+/*
         if (tokenResponse.refreshToken) {
             this.client.cache.saveRefreshToken(tokenResponse)
         }
@@ -109,6 +111,16 @@ export default class WebAuth {
             // we have to have at least id_token in respose
             return new BaseTokenItem(tokenResponse, this.clientId)
         }
+        */
+
+        
+
+        var decodeToken = extractIdToken(tokenResponse.idToken);
+        decodeToken.refreshToken=tokenResponse.refreshToken;
+        decodeToken.idToken=tokenResponse.idToken;
+        decodeToken.accessToken=tokenResponse.accessToken;
+  console.log('tokenResponse',decodeToken);
+        return decodeToken;
     }
 
     
@@ -121,7 +133,16 @@ export default class WebAuth {
    *
    * @memberof WebAuth
    */
-    clearSession(options = {closeOnLoad: true}) {
+    clearSession(options = {closeOnLoad: false}) {
+        const { client, agent } = this
+       
+        const logoutUrl = client.logoutUrl({id_token_hint: options.token});
+        console.log('logoutUrl with token',logoutUrl);
+         agent.openWeb(logoutUrl);
+         
+    }
+
+    async  clearSessionRedirect(options = {}) {
         const { client, agent } = this
         const parsedOptions = validate({
             parameters: {
@@ -130,7 +151,10 @@ export default class WebAuth {
             validate: true // not declared params are NOT allowed:
         }, options)
 
-        const logoutUrl = client.logoutUrl()
-        return agent.openWeb(logoutUrl, parsedOptions.closeOnLoad)
+         let requestParams = {
+            ...options}
+
+        await client.logoutUrl(requestParams)
+      
     }
 }
